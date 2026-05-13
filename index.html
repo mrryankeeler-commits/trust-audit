@@ -1,16 +1,392 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LinkedIn Trust Audit | Ryan Keeler</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta
+    name="description"
+    content="A short private LinkedIn Trust Audit for technical founders, consultants, and B2B experts who want their expertise to be easier to understand and trust before the first conversation."
+  >
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow+Semi+Condensed:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,500,0,0"
+  >
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <main>
-    <p>LinkedIn Trust Audit</p>
-    <h1>See where your LinkedIn is helping or hurting trust.</h1>
-    <p>A short private video audit for technical founders selling high-value B2B services.</p>
-  </main>
+  <div class="page-shell">
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="#top" aria-label="Ryan Keeler LinkedIn Trust Audit">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-text">Ryan Keeler</span>
+        </a>
+        <a class="header-link" href="#request">Request audit</a>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero section">
+        <div class="hero-inner">
+          <p class="section-label hero-eyebrow reveal">LinkedIn Trust Audit</p>
+          <h1 class="reveal">Find the trust gaps buyers notice before they speak to you</h1>
+          <div class="hero-lower">
+            <div class="hero-copy reveal">
+              <p class="hero-subhead">
+                A short private video review of your profile and last 3 posts, showing what I’d
+                tighten to help serious buyers understand and trust you earlier.
+              </p>
+              <p class="hero-note">
+                I only record a small number each week, and I prioritise requests where I can give
+                specific, useful feedback.
+              </p>
+              <div class="hero-actions">
+                <a class="button-primary" href="#request">Request your Trust Audit</a>
+              </div>
+            </div>
+            <div class="hero-visual reveal" aria-hidden="true">
+              <img
+                class="hero-image"
+                src="Assets/trust-audit-hero-image.png"
+                alt=""
+                width="866"
+                height="866"
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section audit-overview">
+        <div class="container">
+          <div class="overview-header reveal">
+            <p class="section-kicker">Review lens</p>
+            <h2>What the audit reviews</h2>
+            <p class="section-intro">
+              This isn’t a generic content critique. I look at your LinkedIn through the eyes of a
+              serious buyer, referrer, partner, or stakeholder.
+            </p>
+          </div>
+          <div class="overview-grid">
+            <article class="overview-card reveal">
+              <h3>Profile clarity</h3>
+              <p>Headline, About, Featured section, and whether buyers quickly understand what you do and why it matters.</p>
+            </article>
+            <article class="overview-card reveal">
+              <h3>Recent content</h3>
+              <p>Your last 3 posts, and whether they show your thinking, judgement, proof, and commercial relevance.</p>
+            </article>
+            <article class="overview-card reveal">
+              <h3>Visible proof</h3>
+              <p>Whether your credibility is easy to recognise before someone speaks to you.</p>
+            </article>
+            <article class="overview-card reveal">
+              <h3>Buyer hesitation</h3>
+              <p>What a serious buyer might question, misunderstand, or miss before the first conversation.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section request-section" id="request">
+        <div class="container request-grid">
+          <div class="request-copy reveal">
+            <p class="section-kicker">Request</p>
+            <h2>Request your audit</h2>
+            <p class="section-intro">
+              Answer a few quick questions so I can see whether I can give you useful feedback.
+            </p>
+            <p class="request-microcopy">
+              Best suited to people with real expertise, proof, and a high-trust B2B sales
+              process.
+            </p>
+          </div>
+
+          <div class="form-shell reveal" aria-label="Trust Audit request form">
+            <aside class="form-test-panel" id="form-test-panel" hidden aria-label="Test mode controls">
+              <div class="form-test-header">
+                <p class="form-test-title">Test mode</p>
+                <p class="form-test-copy">Visible only on localhost or with ?test=1.</p>
+              </div>
+              <div class="form-test-actions">
+                <button type="button" class="form-test-button" data-test-fill="strong">Fill strong-fit test</button>
+                <button type="button" class="form-test-button" data-test-fill="medium">Fill medium-fit test</button>
+                <button type="button" class="form-test-button" data-test-fill="poor">Fill poor-fit test</button>
+                <button type="button" class="form-test-button form-test-button-quiet" data-test-clear="true">Clear form</button>
+              </div>
+              <p class="form-test-status" id="form-test-status" aria-live="polite"></p>
+            </aside>
+
+            <form class="trust-form" id="trust-audit-form" novalidate>
+              <div class="form-progress" aria-live="polite">
+                <div class="form-progress-topline">
+                  <p class="form-progress-label">Trust Audit request</p>
+                  <p class="form-progress-step" id="form-step-text">Step 1 of 5</p>
+                </div>
+                <div class="form-progress-track" aria-hidden="true">
+                  <span class="form-progress-bar" id="form-progress-bar"></span>
+                </div>
+              </div>
+
+              <div class="honeypot-field" aria-hidden="true">
+                <label for="contact_time">Leave this field empty</label>
+                <input type="text" id="contact_time" name="contact_time" tabindex="-1" autocomplete="off">
+              </div>
+
+              <input type="hidden" id="fit_outcome" name="fit_outcome" value="">
+
+              <section class="form-step is-active" data-step="1" aria-labelledby="step-1-title">
+                <div class="form-step-header">
+                  <h3 id="step-1-title">Your details</h3>
+                </div>
+                <div class="field-grid">
+                  <div class="field-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" autocomplete="name" required>
+                    <p class="field-error" data-error-for="name"></p>
+                  </div>
+                  <div class="field-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" autocomplete="email" inputmode="email" required>
+                    <p class="field-error" data-error-for="email"></p>
+                  </div>
+                  <div class="field-group field-span-full">
+                    <label for="linkedin_url">LinkedIn profile or handle</label>
+                    <input type="text" id="linkedin_url" name="linkedin_url" inputmode="url" placeholder="mrryankeeler or https://www.linkedin.com/in/mrryankeeler" required>
+                    <p class="field-help">Paste your LinkedIn URL, or just your profile handle. For example: mrryankeeler.</p>
+                    <p class="field-error" data-error-for="linkedin_url"></p>
+                  </div>
+                  <div class="field-group field-span-full">
+                    <div class="label-row">
+                      <label for="company_name">Company / business name</label>
+                      <span class="field-optional">Optional</span>
+                    </div>
+                    <input type="text" id="company_name" name="company_name" autocomplete="organization" placeholder="Your company or business name">
+                    <p class="field-help">Optional. Helpful if your LinkedIn profile is hard to find.</p>
+                  </div>
+                </div>
+              </section>
+
+              <section class="form-step" data-step="2" aria-labelledby="step-2-title" hidden>
+                <div class="form-step-header">
+                  <h3 id="step-2-title">Your business</h3>
+                </div>
+                <div class="field-grid">
+                  <div class="field-group field-span-full">
+                    <label for="what_they_sell">What do you sell?</label>
+                    <textarea id="what_they_sell" name="what_they_sell" rows="3" required></textarea>
+                    <p class="field-error" data-error-for="what_they_sell"></p>
+                  </div>
+                  <div class="field-group field-span-full">
+                    <label for="who_they_sell_to">Who do you sell to?</label>
+                    <textarea id="who_they_sell_to" name="who_they_sell_to" rows="3" required></textarea>
+                    <p class="field-error" data-error-for="who_they_sell_to"></p>
+                  </div>
+                  <fieldset class="option-group field-span-full">
+                    <legend><span>Typical client value / deal size</span></legend>
+                    <div class="choice-grid choice-grid-single">
+                      <label class="choice-card">
+                        <input type="radio" name="deal_size" value="Under £5k" required>
+                        <span>Under £5k</span>
+                      </label>
+                      <label class="choice-card">
+                        <input type="radio" name="deal_size" value="£5k to £15k">
+                        <span>£5k to £15k</span>
+                      </label>
+                      <label class="choice-card">
+                        <input type="radio" name="deal_size" value="£15k to £50k">
+                        <span>£15k to £50k</span>
+                      </label>
+                      <label class="choice-card">
+                        <input type="radio" name="deal_size" value="£50k+">
+                        <span>£50k+</span>
+                      </label>
+                      <label class="choice-card">
+                        <input type="radio" name="deal_size" value="Varies / not sure">
+                        <span>Varies / not sure</span>
+                      </label>
+                    </div>
+                    <p class="field-error" data-error-for="deal_size"></p>
+                  </fieldset>
+                </div>
+              </section>
+
+              <section class="form-step" data-step="3" aria-labelledby="step-3-title" hidden>
+                <div class="form-step-header">
+                  <h3 id="step-3-title">Commercial focus</h3>
+                  <p>What should your LinkedIn support?</p>
+                  <p>Select all that apply.</p>
+                </div>
+                <fieldset class="option-group">
+                  <legend class="sr-only">What do you want LinkedIn to support most?</legend>
+                  <div class="choice-grid">
+                    <label class="choice-card">
+                      <input type="checkbox" name="linkedin_goals" value="Trust before sales calls">
+                      <span>Trust before sales calls</span>
+                    </label>
+                    <label class="choice-card">
+                      <input type="checkbox" name="linkedin_goals" value="Stronger referrals">
+                      <span>Stronger referrals</span>
+                    </label>
+                    <label class="choice-card">
+                      <input type="checkbox" name="linkedin_goals" value="Better-fit inbound conversations">
+                      <span>Better-fit inbound conversations</span>
+                    </label>
+                    <label class="choice-card">
+                      <input type="checkbox" name="linkedin_goals" value="Investor / partner confidence">
+                      <span>Investor / partner confidence</span>
+                    </label>
+                    <label class="choice-card">
+                      <input type="checkbox" name="linkedin_goals" value="Stakeholder credibility">
+                      <span>Stakeholder credibility</span>
+                    </label>
+                    <label class="choice-card">
+                      <input type="checkbox" name="linkedin_goals" value="Other">
+                      <span>Other</span>
+                    </label>
+                  </div>
+                  <div class="field-group field-span-full conditional-field" id="linkedin-goals-other-group" hidden>
+                    <div class="label-row">
+                      <label for="linkedin_goals_other">Also, what else should your LinkedIn support?</label>
+                      <span class="field-optional">Only if Other</span>
+                    </div>
+                    <textarea id="linkedin_goals_other" name="linkedin_goals_other" rows="3"></textarea>
+                    <p class="field-error" data-error-for="linkedin_goals_other"></p>
+                  </div>
+                  <p class="field-error" data-error-for="linkedin_goals"></p>
+                </fieldset>
+              </section>
+
+              <section class="form-step" data-step="4" aria-labelledby="step-4-title" hidden>
+                <div class="form-step-header">
+                  <h3 id="step-4-title">Current gaps</h3>
+                  <p>What feels weakest about your LinkedIn right now?</p>
+                  <p>Select all that apply.</p>
+                </div>
+                <fieldset class="option-group">
+                  <legend class="sr-only">What feels weakest about your LinkedIn right now?</legend>
+                  <div class="choice-grid">
+                    <label class="choice-card">
+                      <input type="checkbox" name="weakest_area" value="My profile undersells me">
+                      <span>My profile undersells me</span>
+                    </label>
+                    <label class="choice-card">
+                      <input type="checkbox" name="weakest_area" value="My content doesn’t position me as credible">
+                      <span>My content doesn’t position me as credible</span>
+                    </label>
+                    <label class="choice-card">
+                      <input type="checkbox" name="weakest_area" value="My proof or case studies aren’t visible enough">
+                      <span>My proof or case studies aren’t visible enough</span>
+                    </label>
+                    <label class="choice-card">
+                      <input type="checkbox" name="weakest_area" value="I don’t have enough time to write consistently">
+                      <span>I don’t have enough time to write consistently</span>
+                    </label>
+                    <label class="choice-card">
+                      <input type="checkbox" name="weakest_area" value="I’m attracting the wrong type of people">
+                      <span>I’m attracting the wrong type of people</span>
+                    </label>
+                    <label class="choice-card">
+                      <input type="checkbox" name="weakest_area" value="People show interest, but they’re not the right fit">
+                      <span>People show interest, but they’re not the right fit</span>
+                    </label>
+                    <label class="choice-card">
+                      <input type="checkbox" name="weakest_area" value="I’m not sure">
+                      <span>I’m not sure</span>
+                    </label>
+                    <label class="choice-card">
+                      <input type="checkbox" name="weakest_area" value="Other">
+                      <span>Other</span>
+                    </label>
+                  </div>
+                  <div class="field-group field-span-full conditional-field" id="weakest-area-other-group" hidden>
+                    <div class="label-row">
+                      <label for="weakest_area_other">What else feels weak?</label>
+                      <span class="field-optional">Only if Other</span>
+                    </div>
+                    <textarea id="weakest_area_other" name="weakest_area_other" rows="3"></textarea>
+                    <p class="field-error" data-error-for="weakest_area_other"></p>
+                  </div>
+                  <p class="field-error" data-error-for="weakest_area"></p>
+                </fieldset>
+              </section>
+
+              <section class="form-step" data-step="5" aria-labelledby="step-5-title" hidden>
+                <div class="form-step-header">
+                  <h3 id="step-5-title">Readiness</h3>
+                </div>
+                <fieldset class="option-group">
+                  <legend><span>How soon are you looking to improve how your LinkedIn supports trust, referrals, and sales conversations?</span></legend>
+                  <div class="choice-grid choice-grid-single">
+                    <label class="choice-card">
+                      <input type="radio" name="readiness" value="Now / next 30 days" required>
+                      <span>Now / next 30 days</span>
+                    </label>
+                    <label class="choice-card">
+                      <input type="radio" name="readiness" value="Next 30 to 90 days">
+                      <span>Next 30 to 90 days</span>
+                    </label>
+                    <label class="choice-card">
+                      <input type="radio" name="readiness" value="Later / not sure yet">
+                      <span>Later / not sure yet</span>
+                    </label>
+                    <label class="choice-card">
+                      <input type="radio" name="readiness" value="Just curious for now">
+                      <span>Just curious for now</span>
+                    </label>
+                  </div>
+                  <p class="field-error" data-error-for="readiness"></p>
+                </fieldset>
+                <div class="field-group field-span-full final-notes-field">
+                  <div class="label-row">
+                    <label for="specific_notes">Is there anything specific you’d like me to look at?</label>
+                    <span class="field-optional">Optional</span>
+                  </div>
+                  <textarea id="specific_notes" name="specific_notes" rows="4"></textarea>
+                  <p class="field-help">Optional. Add any context about you, your business, or your LinkedIn that has not come through above.</p>
+                </div>
+              </section>
+
+              <div class="form-actions">
+                <p class="form-submit-error" id="form-submit-error" aria-live="polite"></p>
+                <div class="form-actions-row">
+                  <button type="button" class="button-secondary" id="form-back" disabled>Back</button>
+                  <button type="button" class="button-step" id="form-next">
+                    <span>Continue</span>
+                    <span class="material-symbols-rounded button-icon" aria-hidden="true">arrow_forward</span>
+                  </button>
+                  <button type="submit" class="button-primary" id="form-submit" hidden>
+                    <span>Submit request</span>
+                    <span class="material-symbols-rounded button-icon" aria-hidden="true">send</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            <div class="form-success" id="form-success" hidden aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <p>Ryan Keeler: LinkedIn positioning, proof, and trust-led content for technical founders.</p>
+        <div class="footer-links" aria-label="Footer links">
+          <span>LinkedIn placeholder</span>
+          <span>Email placeholder</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
