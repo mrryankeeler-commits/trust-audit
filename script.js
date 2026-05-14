@@ -182,6 +182,7 @@ if (form) {
   let maxStepReached = 1;
   let submitted = false;
   let pageExitTracked = false;
+  let sessionSummaryTracked = false;
 
   const logTest = (...args) => {
     if (!testMode) return;
@@ -240,6 +241,42 @@ if (form) {
   };
 
   const trackedStepViews = getStoredStepViews();
+  const EVENT_FIELD_DEFAULTS = {
+    record_type: "event",
+    event_name: "",
+    session_id: sessionId,
+    timestamp: "",
+    page_url: "",
+    referrer: "",
+    utm_source: utmParams.utm_source,
+    utm_medium: utmParams.utm_medium,
+    utm_campaign: utmParams.utm_campaign,
+    step_number: "",
+    step_name: "",
+    fit_outcome: "",
+    duration_seconds: "",
+    max_step_reached: "",
+    form_started: false,
+    submitted: false,
+    viewport_width: "",
+    source: "trust-audit-page"
+  };
+  const BLOCKED_EVENT_FIELDS = new Set([
+    "name",
+    "email",
+    "linkedin_url",
+    "company_name",
+    "role",
+    "offer_summary",
+    "specific_notes",
+    "commercial_focus",
+    "commercial_focus_other_detail",
+    "current_gaps",
+    "current_gaps_other_detail",
+    "linkedin_current_state",
+    "linkedin_current_state_other_detail",
+    "role_other_detail"
+  ]);
 
   const persistTrackedSteps = () => {
     safeSessionStorage.setItem(STEP_VIEW_KEY, JSON.stringify(Array.from(trackedStepViews)));
@@ -278,66 +315,46 @@ if (form) {
       ])
     );
 
-  const sendAnalyticsPayload = (payload, { useBeacon = false } = {}) => {
+  const sanitizeEventProperties = (properties = {}) =>
+    Object.fromEntries(
+      Object.entries(properties).filter(([key]) => !BLOCKED_EVENT_FIELDS.has(key))
+    );
+
+  const buildEventPayload = (eventName, properties = {}) => ({
+    ...EVENT_FIELD_DEFAULTS,
+    event_name: eventName,
+    session_id: sessionId,
+    timestamp: new Date().toISOString(),
+    page_url: window.location.href,
+    referrer: document.referrer || "",
+    fit_outcome: fitOutcomeField?.value || "",
+    max_step_reached: maxStepReached,
+    form_started: hasStartedForm(),
+    submitted,
+    viewport_width: window.innerWidth || document.documentElement.clientWidth || "",
+    ...sanitizeEventProperties(properties)
+  });
+
+  const sendAnalyticsPayload = (payload, { keepalive = false } = {}) => {
     if (!hasRealEndpoint) {
-      logTest("[analytics] endpoint unavailable, skipped send", payload);
+      logTest("[analytics:send] skipped because endpoint is placeholder", payload);
       return;
     }
 
-    const serializedPayload = serializeEventPayload(payload);
-    const body = new URLSearchParams(serializedPayload);
-
-    if (useBeacon && typeof navigator.sendBeacon === "function") {
-      try {
-        const sent = navigator.sendBeacon(
-          GOOGLE_SCRIPT_ENDPOINT,
-          new Blob([body.toString()], {
-            type: "application/x-www-form-urlencoded;charset=UTF-8"
-          })
-        );
-
-        if (sent) return;
-      } catch (error) {
-        logTest("[analytics] sendBeacon failed", error, serializedPayload);
-      }
-    }
-
+    const body = new URLSearchParams(serializeEventPayload(payload));
+    logTest("[analytics:send] posting to Google Apps Script", payload);
     fetch(GOOGLE_SCRIPT_ENDPOINT, {
       method: "POST",
       mode: "no-cors",
-      keepalive: useBeacon,
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
-      },
+      keepalive,
       body
     }).catch((error) => {
-      logTest("[analytics] fetch failed", error, serializedPayload);
+      logTest("[analytics:send] failed", error, payload);
     });
   };
 
   const trackEvent = (eventName, properties = {}, options = {}) => {
-    const payload = serializeEventPayload({
-      record_type: "event",
-      event_name: eventName,
-      session_id: sessionId,
-      timestamp: new Date().toISOString(),
-      page_url: window.location.href,
-      referrer: document.referrer || "",
-      utm_source: utmParams.utm_source,
-      utm_medium: utmParams.utm_medium,
-      utm_campaign: utmParams.utm_campaign,
-      step_number: "",
-      step_name: "",
-      fit_outcome: fitOutcomeField?.value || "",
-      duration_seconds: "",
-      max_step_reached: maxStepReached,
-      form_started: hasStartedForm(),
-      submitted,
-      viewport_width:
-        window.innerWidth || document.documentElement.clientWidth || "",
-      source: "trust-audit-page",
-      ...properties
-    });
+    const payload = buildEventPayload(eventName, properties);
 
     trackClarityEvent(eventName);
 
@@ -397,20 +414,29 @@ if (form) {
     });
   };
 
+  const buildSessionSummaryProperties = () => ({
+    duration_seconds: getDurationSeconds(),
+    max_step_reached: maxStepReached,
+    form_started: hasStartedForm(),
+    submitted
+  });
+
   const trackPageExit = () => {
     if (pageExitTracked) return;
     pageExitTracked = true;
 
     trackEvent(
       "page_exit",
-      {
-        duration_seconds: getDurationSeconds(),
-        max_step_reached: maxStepReached,
-        form_started: hasStartedForm(),
-        submitted
-      },
-      { useBeacon: true }
+      buildSessionSummaryProperties(),
+      { keepalive: true }
     );
+  };
+
+  const trackSessionSummary = () => {
+    if (sessionSummaryTracked) return;
+    sessionSummaryTracked = true;
+
+    trackEvent("session_summary", buildSessionSummaryProperties(), { keepalive: true });
   };
 
   const updateTestStatus = (message = "") => {
@@ -1161,6 +1187,18 @@ if (form) {
   });
 
   if (testMode && testPanel) {
+    window.sendTrustAuditTestEvent = function () {
+      trackEvent("manual_test_event", {
+        step_number: "",
+        step_name: "",
+        fit_outcome: "",
+        duration_seconds: "",
+        max_step_reached: "",
+        form_started: false,
+        submitted: false
+      });
+    };
+
     testPanel.hidden = false;
     testPanel.addEventListener("click", (event) => {
       const target = event.target;
@@ -1179,6 +1217,8 @@ if (form) {
         logTest("[test-mode] Form cleared");
       }
     });
+  } else {
+    delete window.sendTrustAuditTestEvent;
   }
 
   conditionalFields.forEach(({ name, triggerValue, groupId, fieldName }) => {
@@ -1225,10 +1265,14 @@ if (form) {
   setStep(0);
   trackEvent("page_view");
 
-  window.addEventListener("pagehide", trackPageExit);
+  window.addEventListener("pagehide", () => {
+    trackPageExit();
+    trackSessionSummary();
+  });
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden") {
       trackPageExit();
+      trackSessionSummary();
     }
   });
 }
