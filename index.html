@@ -179,34 +179,89 @@
                   <h3 id="step-2-title">Your business</h3>
                 </div>
                 <div class="field-grid">
+                  <fieldset class="option-group field-span-full">
+                    <legend><span>Your role</span></legend>
+                    <div class="choice-grid choice-grid-role">
+                      <label class="choice-card">
+                        <input type="radio" name="role" value="Founder / Co-founder" required>
+                        <span>Founder / Co-founder</span>
+                      </label>
+                      <label class="choice-card">
+                        <input type="radio" name="role" value="Managing Director / CEO">
+                        <span>Managing Director / CEO</span>
+                      </label>
+                      <label class="choice-card">
+                        <input type="radio" name="role" value="Partner / Principal">
+                        <span>Partner / Principal</span>
+                      </label>
+                      <label class="choice-card">
+                        <input type="radio" name="role" value="Consultant">
+                        <span>Consultant</span>
+                      </label>
+                      <label class="choice-card">
+                        <input type="radio" name="role" value="Coach">
+                        <span>Coach</span>
+                      </label>
+                      <label class="choice-card">
+                        <input type="radio" name="role" value="Agency owner">
+                        <span>Agency owner</span>
+                      </label>
+                      <label class="choice-card">
+                        <input type="radio" name="role" value="CTO / Technical Director">
+                        <span>CTO / Technical Director</span>
+                      </label>
+                      <label class="choice-card">
+                        <input type="radio" name="role" value="Other">
+                        <span>Other</span>
+                      </label>
+                    </div>
+                    <div class="field-group field-span-full conditional-field" id="role-other-group" hidden>
+                      <div class="label-row">
+                        <label for="role_other_detail">What is your role?</label>
+                        <span class="field-optional">Only if Other</span>
+                      </div>
+                      <input type="text" id="role_other_detail" name="role_other_detail" autocomplete="organization-title">
+                      <p class="field-error" data-error-for="role_other_detail"></p>
+                    </div>
+                    <p class="field-error" data-error-for="role"></p>
+                  </fieldset>
                   <div class="field-group field-span-full">
-                    <label for="what_they_sell">What do you sell?</label>
-                    <textarea id="what_they_sell" name="what_they_sell" rows="3" required></textarea>
-                    <p class="field-error" data-error-for="what_they_sell"></p>
-                  </div>
-                  <div class="field-group field-span-full">
-                    <label for="who_they_sell_to">Who do you sell to?</label>
-                    <textarea id="who_they_sell_to" name="who_they_sell_to" rows="3" required></textarea>
-                    <p class="field-error" data-error-for="who_they_sell_to"></p>
+                    <label for="offer_summary">What do you do, and who is it for?</label>
+                    <textarea id="offer_summary" name="offer_summary" rows="4" required placeholder="For example: We help technical teams reduce implementation risk on complex B2B projects."></textarea>
+                    <p class="field-help">Give me the short version of what you sell, who buys it, and why they usually need it.</p>
+                    <p class="field-error" data-error-for="offer_summary"></p>
                   </div>
                   <fieldset class="option-group field-span-full">
-                    <legend><span>Typical client value / deal size</span></legend>
+                    <legend><span>What is your typical contract or deal size?</span></legend>
+                    <p class="field-help">Approximate is fine. Choose the closest option.</p>
                     <div class="choice-grid choice-grid-single">
                       <label class="choice-card">
-                        <input type="radio" name="deal_size" value="Under £5k" required>
-                        <span>Under £5k</span>
+                        <input type="radio" name="deal_size" value="Under £2.5k (under ~$3k)" required>
+                        <span>Under £2.5k (under ~$3k)</span>
                       </label>
                       <label class="choice-card">
-                        <input type="radio" name="deal_size" value="£5k to £15k">
-                        <span>£5k to £15k</span>
+                        <input type="radio" name="deal_size" value="£2.5k to £5k (~$3k to $6k)">
+                        <span>£2.5k to £5k (~$3k to $6k)</span>
                       </label>
                       <label class="choice-card">
-                        <input type="radio" name="deal_size" value="£15k to £50k">
-                        <span>£15k to £50k</span>
+                        <input type="radio" name="deal_size" value="£5k to £15k (~$6k to $19k)">
+                        <span>£5k to £15k (~$6k to $19k)</span>
                       </label>
                       <label class="choice-card">
-                        <input type="radio" name="deal_size" value="£50k+">
-                        <span>£50k+</span>
+                        <input type="radio" name="deal_size" value="£15k to £25k (~$19k to $31k)">
+                        <span>£15k to £25k (~$19k to $31k)</span>
+                      </label>
+                      <label class="choice-card">
+                        <input type="radio" name="deal_size" value="£25k to £50k (~$31k to $63k)">
+                        <span>£25k to £50k (~$31k to $63k)</span>
+                      </label>
+                      <label class="choice-card">
+                        <input type="radio" name="deal_size" value="£50k to £100k (~$63k to $125k)">
+                        <span>£50k to £100k (~$63k to $125k)</span>
+                      </label>
+                      <label class="choice-card">
+                        <input type="radio" name="deal_size" value="£100k+ (~$125k+)">
+                        <span>£100k+ (~$125k+)</span>
                       </label>
                       <label class="choice-card">
                         <input type="radio" name="deal_size" value="Varies / not sure">
@@ -228,39 +283,43 @@
                   <legend class="sr-only">What do you want LinkedIn to support most?</legend>
                   <div class="choice-grid">
                     <label class="choice-card">
-                      <input type="checkbox" name="linkedin_goals" value="Trust before sales calls">
-                      <span>Trust before sales calls</span>
+                      <input type="checkbox" name="commercial_focus" value="Build trust before sales calls">
+                      <span>Build trust before sales calls</span>
                     </label>
                     <label class="choice-card">
-                      <input type="checkbox" name="linkedin_goals" value="Stronger referrals">
-                      <span>Stronger referrals</span>
+                      <input type="checkbox" name="commercial_focus" value="Make referrals land with more context">
+                      <span>Make referrals land with more context</span>
                     </label>
                     <label class="choice-card">
-                      <input type="checkbox" name="linkedin_goals" value="Better-fit inbound conversations">
-                      <span>Better-fit inbound conversations</span>
+                      <input type="checkbox" name="commercial_focus" value="Attract better-fit inbound leads">
+                      <span>Attract better-fit inbound leads</span>
                     </label>
                     <label class="choice-card">
-                      <input type="checkbox" name="linkedin_goals" value="Investor / partner confidence">
-                      <span>Investor / partner confidence</span>
+                      <input type="checkbox" name="commercial_focus" value="Help buyers understand the value I offer faster">
+                      <span>Help buyers understand the value I offer faster</span>
                     </label>
                     <label class="choice-card">
-                      <input type="checkbox" name="linkedin_goals" value="Stakeholder credibility">
-                      <span>Stakeholder credibility</span>
+                      <input type="checkbox" name="commercial_focus" value="Support investor, partner, or stakeholder confidence">
+                      <span>Support investor, partner, or stakeholder confidence</span>
                     </label>
                     <label class="choice-card">
-                      <input type="checkbox" name="linkedin_goals" value="Other">
+                      <input type="checkbox" name="commercial_focus" value="Shorten the trust-building stage in sales">
+                      <span>Shorten the trust-building stage in sales</span>
+                    </label>
+                    <label class="choice-card">
+                      <input type="checkbox" name="commercial_focus" value="Other">
                       <span>Other</span>
                     </label>
                   </div>
-                  <div class="field-group field-span-full conditional-field" id="linkedin-goals-other-group" hidden>
+                  <div class="field-group field-span-full conditional-field" id="commercial-focus-other-group" hidden>
                     <div class="label-row">
-                      <label for="linkedin_goals_other">Also, what else should your LinkedIn support?</label>
+                      <label for="commercial_focus_other_detail">Also, what else should your LinkedIn support?</label>
                       <span class="field-optional">Only if Other</span>
                     </div>
-                    <textarea id="linkedin_goals_other" name="linkedin_goals_other" rows="3"></textarea>
-                    <p class="field-error" data-error-for="linkedin_goals_other"></p>
+                    <textarea id="commercial_focus_other_detail" name="commercial_focus_other_detail" rows="3"></textarea>
+                    <p class="field-error" data-error-for="commercial_focus_other_detail"></p>
                   </div>
-                  <p class="field-error" data-error-for="linkedin_goals"></p>
+                  <p class="field-error" data-error-for="commercial_focus"></p>
                 </fieldset>
               </section>
 
@@ -274,47 +333,47 @@
                   <legend class="sr-only">What feels weakest about your LinkedIn right now?</legend>
                   <div class="choice-grid">
                     <label class="choice-card">
-                      <input type="checkbox" name="weakest_area" value="My profile undersells me">
+                      <input type="checkbox" name="current_gaps" value="My profile undersells me">
                       <span>My profile undersells me</span>
                     </label>
                     <label class="choice-card">
-                      <input type="checkbox" name="weakest_area" value="My content doesn’t position me as credible">
+                      <input type="checkbox" name="current_gaps" value="My content doesn’t position me as credible">
                       <span>My content doesn’t position me as credible</span>
                     </label>
                     <label class="choice-card">
-                      <input type="checkbox" name="weakest_area" value="My proof or case studies aren’t visible enough">
+                      <input type="checkbox" name="current_gaps" value="My proof or case studies aren’t visible enough">
                       <span>My proof or case studies aren’t visible enough</span>
                     </label>
                     <label class="choice-card">
-                      <input type="checkbox" name="weakest_area" value="I don’t have enough time to write consistently">
+                      <input type="checkbox" name="current_gaps" value="I don’t have enough time to write consistently">
                       <span>I don’t have enough time to write consistently</span>
                     </label>
                     <label class="choice-card">
-                      <input type="checkbox" name="weakest_area" value="I’m attracting the wrong type of people">
+                      <input type="checkbox" name="current_gaps" value="I’m attracting the wrong type of people">
                       <span>I’m attracting the wrong type of people</span>
                     </label>
                     <label class="choice-card">
-                      <input type="checkbox" name="weakest_area" value="People show interest, but they’re not the right fit">
+                      <input type="checkbox" name="current_gaps" value="People show interest, but they’re not the right fit">
                       <span>People show interest, but they’re not the right fit</span>
                     </label>
                     <label class="choice-card">
-                      <input type="checkbox" name="weakest_area" value="I’m not sure">
+                      <input type="checkbox" name="current_gaps" value="I’m not sure">
                       <span>I’m not sure</span>
                     </label>
                     <label class="choice-card">
-                      <input type="checkbox" name="weakest_area" value="Other">
+                      <input type="checkbox" name="current_gaps" value="Other">
                       <span>Other</span>
                     </label>
                   </div>
-                  <div class="field-group field-span-full conditional-field" id="weakest-area-other-group" hidden>
+                  <div class="field-group field-span-full conditional-field" id="current-gaps-other-group" hidden>
                     <div class="label-row">
-                      <label for="weakest_area_other">What else feels weak?</label>
+                      <label for="current_gaps_other_detail">What else feels weak?</label>
                       <span class="field-optional">Only if Other</span>
                     </div>
-                    <textarea id="weakest_area_other" name="weakest_area_other" rows="3"></textarea>
-                    <p class="field-error" data-error-for="weakest_area_other"></p>
+                    <textarea id="current_gaps_other_detail" name="current_gaps_other_detail" rows="3"></textarea>
+                    <p class="field-error" data-error-for="current_gaps_other_detail"></p>
                   </div>
-                  <p class="field-error" data-error-for="weakest_area"></p>
+                  <p class="field-error" data-error-for="current_gaps"></p>
                 </fieldset>
               </section>
 
@@ -343,6 +402,56 @@
                     </label>
                   </div>
                   <p class="field-error" data-error-for="readiness"></p>
+                </fieldset>
+                <fieldset class="option-group final-notes-field">
+                  <legend><span>How is your LinkedIn currently working for you?</span></legend>
+                  <div class="choice-grid">
+                    <label class="choice-card">
+                      <input type="radio" name="linkedin_current_state" value="Nothing meaningful yet" required>
+                      <span>Nothing meaningful yet</span>
+                    </label>
+                    <label class="choice-card">
+                      <input type="radio" name="linkedin_current_state" value="I get views or engagement, but few real conversations">
+                      <span>I get views or engagement, but few real conversations</span>
+                    </label>
+                    <label class="choice-card">
+                      <input type="radio" name="linkedin_current_state" value="I get some conversations, but they’re not usually the right fit">
+                      <span>I get some conversations, but they’re not usually the right fit</span>
+                    </label>
+                    <label class="choice-card">
+                      <input type="radio" name="linkedin_current_state" value="Referrals check my profile before calls">
+                      <span>Referrals check my profile before calls</span>
+                    </label>
+                    <label class="choice-card">
+                      <input type="radio" name="linkedin_current_state" value="I get enquiries, but buyers need too much context">
+                      <span>I get enquiries, but buyers need too much context</span>
+                    </label>
+                    <label class="choice-card">
+                      <input type="radio" name="linkedin_current_state" value="It used to work better than it does now">
+                      <span>It used to work better than it does now</span>
+                    </label>
+                    <label class="choice-card">
+                      <input type="radio" name="linkedin_current_state" value="It works, but I want it sharper">
+                      <span>It works, but I want it sharper</span>
+                    </label>
+                    <label class="choice-card">
+                      <input type="radio" name="linkedin_current_state" value="Not sure">
+                      <span>Not sure</span>
+                    </label>
+                    <label class="choice-card">
+                      <input type="radio" name="linkedin_current_state" value="Other">
+                      <span>Other</span>
+                    </label>
+                  </div>
+                  <div class="field-group field-span-full conditional-field" id="linkedin-current-state-other-group" hidden>
+                    <div class="label-row">
+                      <label for="linkedin_current_state_other_detail">What’s happening with LinkedIn right now?</label>
+                      <span class="field-optional">Only if Other</span>
+                    </div>
+                    <textarea id="linkedin_current_state_other_detail" name="linkedin_current_state_other_detail" rows="3"></textarea>
+                    <p class="field-error" data-error-for="linkedin_current_state_other_detail"></p>
+                  </div>
+                  <p class="field-error" data-error-for="linkedin_current_state"></p>
                 </fieldset>
                 <div class="field-group field-span-full final-notes-field">
                   <div class="label-row">

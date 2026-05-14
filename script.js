@@ -58,57 +58,116 @@ if (form) {
       email: "strongfit@example.com",
       linkedin_url: "mrryankeeler",
       company_name: "Strong Fit Test Co",
-      what_they_sell: "High-value B2B implementation and advisory services for technical teams.",
-      who_they_sell_to: "Technical founders, operators, and senior B2B decision-makers.",
-      deal_size: "£15k to £50k",
-      linkedin_goals: [
-        "Trust before sales calls",
-        "Stronger referrals",
-        "Better-fit inbound conversations"
+      role: "Founder / Co-founder",
+      role_other_detail: "",
+      offer_summary:
+        "We help technical teams reduce implementation risk on complex B2B projects.",
+      deal_size: "£25k to £50k (~$31k to $63k)",
+      commercial_focus: [
+        "Build trust before sales calls",
+        "Attract better-fit inbound leads",
+        "Help buyers understand the value I offer faster"
       ],
-      linkedin_goals_other: "",
-      weakest_area: [
+      commercial_focus_other_detail: "",
+      current_gaps: [
         "My proof or case studies aren’t visible enough",
         "My profile undersells me"
       ],
-      weakest_area_other: "",
+      current_gaps_other_detail: "",
       readiness: "Now / next 30 days",
-      specific_notes: "TEST SUBMISSION: strong fit route."
+      linkedin_current_state: "I get some conversations, but they’re not usually the right fit",
+      linkedin_current_state_other_detail: "",
+      specific_notes: "TEST SUBMISSION: strong fit route.",
+      expected_fit_outcome: "strong_fit"
     },
     medium: {
       name: "Test Medium Fit",
       email: "mediumfit@example.com",
       linkedin_url: "mrryankeeler",
       company_name: "Medium Fit Test Co",
-      what_they_sell: "B2B consulting services.",
-      who_they_sell_to: "Small business owners and operators.",
-      deal_size: "£5k to £15k",
-      linkedin_goals: ["Better-fit inbound conversations"],
-      linkedin_goals_other: "",
-      weakest_area: [
-        "My profile undersells me",
-        "My content doesn’t position me as credible"
-      ],
-      weakest_area_other: "",
+      role: "Consultant",
+      role_other_detail: "",
+      offer_summary: "I provide specialist B2B consulting to small and mid-sized firms.",
+      deal_size: "£5k to £15k (~$6k to $19k)",
+      commercial_focus: ["Attract better-fit inbound leads"],
+      commercial_focus_other_detail: "",
+      current_gaps: ["My content doesn’t position me as credible"],
+      current_gaps_other_detail: "",
       readiness: "Next 30 to 90 days",
-      specific_notes: "TEST SUBMISSION: medium fit route."
+      linkedin_current_state: "I get views or engagement, but few real conversations",
+      linkedin_current_state_other_detail: "",
+      specific_notes: "TEST SUBMISSION: medium fit route.",
+      expected_fit_outcome: "medium_fit"
     },
     poor: {
       name: "Test Poor Fit",
       email: "poorfit@example.com",
       linkedin_url: "mrryankeeler",
       company_name: "Poor Fit Test Co",
-      what_they_sell: "Low-ticket content help and general social media posting.",
-      who_they_sell_to: "Early-stage creators.",
-      deal_size: "Under £5k",
-      linkedin_goals: ["Other"],
-      linkedin_goals_other: "Generic content ideas",
-      weakest_area: ["I’m not sure"],
-      weakest_area_other: "",
+      role: "Other",
+      role_other_detail: "Creator",
+      offer_summary: "I want help with low-ticket general social media content.",
+      deal_size: "Under £2.5k (under ~$3k)",
+      commercial_focus: ["Other"],
+      commercial_focus_other_detail: "Generic content ideas",
+      current_gaps: ["I’m not sure"],
+      current_gaps_other_detail: "",
       readiness: "Just curious for now",
-      specific_notes: "TEST SUBMISSION: poor fit route."
+      linkedin_current_state: "Nothing meaningful yet",
+      linkedin_current_state_other_detail: "",
+      specific_notes: "TEST SUBMISSION: poor fit route.",
+      expected_fit_outcome: "poor_fit"
     }
   };
+
+  const conditionalFields = [
+    {
+      name: "role",
+      triggerValue: "Other",
+      groupId: "role-other-group",
+      fieldName: "role_other_detail"
+    },
+    {
+      name: "commercial_focus",
+      triggerValue: "Other",
+      groupId: "commercial-focus-other-group",
+      fieldName: "commercial_focus_other_detail"
+    },
+    {
+      name: "current_gaps",
+      triggerValue: "Other",
+      groupId: "current-gaps-other-group",
+      fieldName: "current_gaps_other_detail"
+    },
+    {
+      name: "linkedin_current_state",
+      triggerValue: "Other",
+      groupId: "linkedin-current-state-other-group",
+      fieldName: "linkedin_current_state_other_detail"
+    }
+  ];
+
+  const seriousBusinessOutcomes = new Set([
+    "Build trust before sales calls",
+    "Make referrals land with more context",
+    "Attract better-fit inbound leads",
+    "Help buyers understand the value I offer faster",
+    "Support investor, partner, or stakeholder confidence",
+    "Shorten the trust-building stage in sales"
+  ]);
+
+  const strongFitDealSizes = new Set([
+    "£15k to £25k (~$19k to $31k)",
+    "£25k to £50k (~$31k to $63k)",
+    "£50k to £100k (~$63k to $125k)",
+    "£100k+ (~$125k+)"
+  ]);
+
+  const mediumFitDealSizes = new Set([
+    "£2.5k to £5k (~$3k to $6k)",
+    "£5k to £15k (~$6k to $19k)",
+    "Varies / not sure"
+  ]);
 
   let currentStep = 0;
   let isSubmitting = false;
@@ -138,7 +197,12 @@ if (form) {
     if (stepText) stepText.textContent = `Step ${stepNumber} of ${TOTAL_STEPS}`;
     if (progressBar) progressBar.style.width = `${percent}%`;
 
-    if (backButton) backButton.disabled = currentStep === 0;
+    if (backButton) {
+      const shouldHideBack = currentStep === 0;
+      backButton.hidden = shouldHideBack;
+      backButton.disabled = shouldHideBack || isSubmitting;
+      backButton.setAttribute("aria-hidden", String(shouldHideBack));
+    }
     if (nextButton) {
       nextButton.hidden = isFinalStep;
       nextButton.disabled = isFinalStep || isSubmitting;
@@ -193,8 +257,33 @@ if (form) {
 
   const getTrimmedValue = (name) => String(form.elements[name]?.value || "").trim();
 
-  const syncConditionalField = (checkboxName, triggerValue, groupId, fieldName) => {
-    const values = getCheckedValues(checkboxName);
+  const getSelectedValue = (name) => {
+    const field = form.elements[name];
+
+    if (field instanceof RadioNodeList) {
+      return String(field.value || "").trim();
+    }
+
+    return getTrimmedValue(name);
+  };
+
+  const appendOtherDetail = (value, detail) => {
+    if (value !== "Other") return value;
+
+    const trimmedDetail = String(detail || "").trim();
+    return trimmedDetail ? `Other (${trimmedDetail})` : "Other";
+  };
+
+  const buildJoinedValue = (name, otherFieldName) => {
+    const detail = getTrimmedValue(otherFieldName);
+
+    return getCheckedValues(name)
+      .map((value) => appendOtherDetail(value, detail))
+      .join(" | ");
+  };
+
+  const syncConditionalField = (name, triggerValue, groupId, fieldName) => {
+    const values = getCheckedValues(name);
     const group = document.querySelector(`#${groupId}`);
     const field = form.elements[fieldName];
     const shouldShow = values.includes(triggerValue);
@@ -234,7 +323,7 @@ if (form) {
     }
 
     candidate = candidate.replace(/^@/, "").trim();
-    return candidate ? `https://www.linkedin.com/in/${candidate}/` : "";
+      return candidate ? `https://www.linkedin.com/in/${candidate}/` : "";
   };
 
   const validators = [
@@ -278,62 +367,70 @@ if (form) {
     },
     () => {
       let valid = true;
-      const textFields = [
-        ["what_they_sell", "Please describe what you sell."],
-        ["who_they_sell_to", "Please describe who you sell to."]
-      ];
+      clearGroupState("role");
+      setError("role", "");
+      if (!getSelectedValue("role")) {
+        invalidateField("role", "Select the role that best describes you.");
+        valid = false;
+      }
 
-      textFields.forEach(([name, message]) => {
-        clearGroupState(name);
-        setError(name, "");
-        if (!getTrimmedValue(name)) {
-          invalidateField(name, message);
-          valid = false;
-        }
-      });
+      if (getSelectedValue("role") === "Other" && !getTrimmedValue("role_other_detail")) {
+        invalidateField("role_other_detail", "Tell me what your role is.");
+        valid = false;
+      }
+
+      clearGroupState("offer_summary");
+      setError("offer_summary", "");
+      if (!getTrimmedValue("offer_summary")) {
+        invalidateField("offer_summary", "Tell me what you do and who it is for.");
+        valid = false;
+      }
 
       clearGroupState("deal_size");
       setError("deal_size", "");
-      if (!getTrimmedValue("deal_size")) {
-        invalidateField("deal_size", "Please choose a typical client value / deal size.");
+      if (!getSelectedValue("deal_size")) {
+        invalidateField("deal_size", "Choose the closest contract or deal size.");
         valid = false;
       }
 
       return valid;
     },
     () => {
-      clearGroupState("linkedin_goals");
-      setError("linkedin_goals", "");
+      clearGroupState("commercial_focus");
+      setError("commercial_focus", "");
 
-      if (!getCheckedValues("linkedin_goals").length) {
+      if (!getCheckedValues("commercial_focus").length) {
         const group = form.querySelector('[data-step="3"] .option-group');
         group?.classList.add("is-invalid");
-        setError("linkedin_goals", "Select at least one thing your LinkedIn should support.");
+        setError("commercial_focus", "Select at least one thing your LinkedIn should support.");
         return false;
       }
 
-      const goals = getCheckedValues("linkedin_goals");
-      if (goals.includes("Other") && !getTrimmedValue("linkedin_goals_other")) {
-        invalidateField("linkedin_goals_other", "Tell me what else LinkedIn should support.");
+      const focusAreas = getCheckedValues("commercial_focus");
+      if (focusAreas.includes("Other") && !getTrimmedValue("commercial_focus_other_detail")) {
+        invalidateField(
+          "commercial_focus_other_detail",
+          "Tell me what else LinkedIn should support."
+        );
         return false;
       }
 
       return true;
     },
     () => {
-      clearGroupState("weakest_area");
-      setError("weakest_area", "");
+      clearGroupState("current_gaps");
+      setError("current_gaps", "");
 
-      const weakestAreas = getCheckedValues("weakest_area");
-      if (!weakestAreas.length) {
+      const currentGaps = getCheckedValues("current_gaps");
+      if (!currentGaps.length) {
         const group = form.querySelector('[data-step="4"] .option-group');
         group?.classList.add("is-invalid");
-        setError("weakest_area", "Select at least one current gap.");
+        setError("current_gaps", "Select at least one current gap.");
         return false;
       }
 
-      if (weakestAreas.includes("Other") && !getTrimmedValue("weakest_area_other")) {
-        invalidateField("weakest_area_other", "Tell me what else feels weak.");
+      if (currentGaps.includes("Other") && !getTrimmedValue("current_gaps_other_detail")) {
+        invalidateField("current_gaps_other_detail", "Tell me what else feels weak.");
         return false;
       }
 
@@ -343,8 +440,30 @@ if (form) {
       clearGroupState("readiness");
       setError("readiness", "");
 
-      if (!getTrimmedValue("readiness")) {
+      if (!getSelectedValue("readiness")) {
         invalidateField("readiness", "Tell me roughly how soon you are looking to improve this.");
+        return false;
+      }
+
+      clearGroupState("linkedin_current_state");
+      setError("linkedin_current_state", "");
+
+      if (!getSelectedValue("linkedin_current_state")) {
+        invalidateField(
+          "linkedin_current_state",
+          "Tell me how LinkedIn is currently working for you."
+        );
+        return false;
+      }
+
+      if (
+        getSelectedValue("linkedin_current_state") === "Other" &&
+        !getTrimmedValue("linkedin_current_state_other_detail")
+      ) {
+        invalidateField(
+          "linkedin_current_state_other_detail",
+          "Tell me how LinkedIn is currently working for you."
+        );
         return false;
       }
 
@@ -365,7 +484,7 @@ if (form) {
   };
 
   const buildPayload = () => {
-    const linkedinGoals = getCheckedValues("linkedin_goals");
+    const selectedRole = getSelectedValue("role");
 
     const payload = {
       timestamp: new Date().toISOString(),
@@ -373,15 +492,16 @@ if (form) {
       email: getTrimmedValue("email"),
       linkedin_url: normalizeLinkedInValue(getTrimmedValue("linkedin_url")),
       company_name: getTrimmedValue("company_name"),
-      what_they_sell: getTrimmedValue("what_they_sell"),
-      who_they_sell_to: getTrimmedValue("who_they_sell_to"),
-      deal_size: getTrimmedValue("deal_size"),
-      linkedin_goals: linkedinGoals.join(" | "),
-      linkedin_goals_other: getTrimmedValue("linkedin_goals_other"),
-      weakest_area: getCheckedValues("weakest_area").join(" | "),
-      weakest_area_other: getTrimmedValue("weakest_area_other"),
-      readiness: getTrimmedValue("readiness"),
-      timing: getTrimmedValue("readiness"),
+      role: appendOtherDetail(selectedRole, getTrimmedValue("role_other_detail")),
+      offer_summary: getTrimmedValue("offer_summary"),
+      deal_size: getSelectedValue("deal_size"),
+      commercial_focus: buildJoinedValue("commercial_focus", "commercial_focus_other_detail"),
+      current_gaps: buildJoinedValue("current_gaps", "current_gaps_other_detail"),
+      readiness: getSelectedValue("readiness"),
+      linkedin_current_state: appendOtherDetail(
+        getSelectedValue("linkedin_current_state"),
+        getTrimmedValue("linkedin_current_state_other_detail")
+      ),
       specific_notes: getTrimmedValue("specific_notes"),
       fit_outcome: "medium_fit",
       source: "trust-audit-page"
@@ -391,55 +511,64 @@ if (form) {
   };
 
   const calculateFitOutcome = (payload) => {
-    const goals = payload.linkedin_goals ? payload.linkedin_goals.split(" | ").filter(Boolean) : [];
+    const commercialFocus = payload.commercial_focus
+      ? payload.commercial_focus.split(" | ").filter(Boolean)
+      : [];
+    const role = payload.role.toLowerCase();
     const readiness = payload.readiness;
-    const businessStrength =
-      payload.what_they_sell.length >= 12 && payload.who_they_sell_to.length >= 12;
-    const genericTipsSignal =
-      /viral|content tips|profile polish|generic|social media/i.test(payload.specific_notes) ||
-      /viral|generic|social media|content help/i.test(payload.what_they_sell);
-    const commerciallyRelevantGoal = goals.some((goal) =>
-      [
-        "Trust before sales calls",
-        "Stronger referrals",
-        "Better-fit inbound conversations",
-        "Investor / partner confidence",
-        "Stakeholder credibility"
-      ].includes(goal)
-    );
+    const offerLength = payload.offer_summary.trim().length;
+    const offerWordCount = payload.offer_summary.trim().split(/\s+/).filter(Boolean).length;
+    const offerIsShort = offerLength < 30 || offerWordCount < 6;
+    const offerIsVague =
+      /help people|various|many things|bit of everything|general help|not sure/i.test(
+        payload.offer_summary
+      ) ||
+      (!/b2b|buyer|firm|team|technical|consult|advis|implementation|sales|stakeholder|project|founder|partner|operator|company/i.test(
+        payload.offer_summary
+      ) &&
+        offerLength < 55);
+    const genericLowTicketSignal =
+      /low-ticket|generic|social media|posting|creator|content ideas|general content/i.test(
+        `${payload.offer_summary} ${payload.specific_notes} ${payload.role}`
+      );
+    const roleIsRelevant =
+      !/creator|influencer|social media/i.test(role) &&
+      Boolean(payload.role) &&
+      !/^other\s*\(\s*\)$/.test(payload.role);
+    const hasSeriousBusinessOutcome = commercialFocus.some((item) => {
+      const normalizedItem = item.startsWith("Other (") ? "Other" : item;
+      return seriousBusinessOutcomes.has(normalizedItem);
+    });
 
     logTest("[test-mode] Selected deal size", payload.deal_size);
     logTest("[test-mode] Selected readiness", readiness);
 
     if (
-      payload.deal_size === "Under £5k" ||
-      readiness === "Just curious for now" ||
-      !businessStrength ||
-      genericTipsSignal
+      payload.deal_size === "Under £2.5k (under ~$3k)" ||
+      offerIsShort ||
+      offerIsVague ||
+      genericLowTicketSignal
     ) {
       logTest("[test-mode] Calculated fit outcome", "poor_fit");
       return "poor_fit";
     }
 
     if (
-      (payload.deal_size === "£15k to £50k" || payload.deal_size === "£50k+") &&
+      strongFitDealSizes.has(payload.deal_size) &&
       (readiness === "Now / next 30 days" || readiness === "Next 30 to 90 days") &&
-      businessStrength &&
-      commerciallyRelevantGoal
+      roleIsRelevant &&
+      offerLength >= 45 &&
+      hasSeriousBusinessOutcome
     ) {
       logTest("[test-mode] Calculated fit outcome", "strong_fit");
       return "strong_fit";
     }
 
     if (
-      (payload.deal_size === "£5k to £15k" || payload.deal_size === "Varies / not sure") &&
-      businessStrength
+      mediumFitDealSizes.has(payload.deal_size) ||
+      readiness === "Later / not sure yet" ||
+      (readiness === "Just curious for now" && roleIsRelevant && offerLength >= 45)
     ) {
-      logTest("[test-mode] Calculated fit outcome", "medium_fit");
-      return "medium_fit";
-    }
-
-    if (readiness === "Later / not sure yet") {
       logTest("[test-mode] Calculated fit outcome", "medium_fit");
       return "medium_fit";
     }
@@ -457,26 +586,28 @@ if (form) {
         body: "I’ll review your profile and last 3 posts and send your short private priority audit within 2 working days.",
         extra:
           "If there’s a clear trust gap I can help you spot, I’ll show what I’d tighten first to help serious buyers understand and trust you earlier.",
-        secondary_heading:
+        cta_intro:
           "If you already know this is something you want help with, you can book a short 30-minute call below.",
-        action:
-          '<a class="form-success-button" href="https://calendly.com/mrryankeeler/clarity-call" target="_blank" rel="noopener noreferrer">Book a 30-minute call</a>'
+        action_label: "Book a 30-minute call",
+        action_url: "https://calendly.com/mrryankeeler/clarity-call"
       },
       medium_fit: {
         title: "Thanks. I’ve got your request.",
         body: "I’ll review your profile and last 3 posts and, if there’s a clear angle where I can give useful feedback, I’ll send over a short private audit within 2 working days.",
         extra: "",
-        secondary_heading:
+        cta_intro:
           "If you already know this is something you want help with, you can book a short 30-minute call below.",
-        action:
-          '<a class="form-success-button" href="https://calendly.com/mrryankeeler/clarity-call" target="_blank" rel="noopener noreferrer">Book a 30-minute call</a>'
+        action_label: "Book a 30-minute call",
+        action_url: "https://calendly.com/mrryankeeler/clarity-call"
       },
       poor_fit: {
         title: "Thanks for submitting.",
         body: "This audit is mainly designed for founders and B2B experts with real expertise, proof, and a high-trust sales process.",
         extra: "Based on your answers, it may not be the most useful next step right now.",
-        secondary_heading: "",
-        action: ""
+        cta_intro:
+          "If your situation is more nuanced than the form allows, send me a message on LinkedIn with a bit of context and I’ll take a look.",
+        action_label: "Send me context on LinkedIn",
+        action_url: "https://www.linkedin.com/in/mrryankeeler/"
       }
     };
 
@@ -485,18 +616,18 @@ if (form) {
       <h3>${state.title}</h3>
       <p>${state.body}</p>
       ${state.extra ? `<p>${state.extra}</p>` : ""}
-      ${
-        state.action
-          ? `<div class="form-success-action">
-              ${
-                state.secondary_heading
-                  ? `<p class="form-success-subtitle">${state.secondary_heading}</p>`
-                  : ""
-              }
-              ${state.action}
-            </div>`
-          : ""
-      }
+      <div class="form-success-action">
+        ${state.cta_intro ? `<p class="form-success-subtitle">${state.cta_intro}</p>` : ""}
+        ${
+          state.action_url
+            ? `<a class="form-success-button" href="${state.action_url}" target="_blank" rel="noopener noreferrer">${state.action_label}</a>`
+            : ""
+        }
+      </div>
+      <div class="form-success-reset">
+        <p class="form-success-subtitle">Made a mistake?</p>
+        <button type="button" class="form-success-reset-button" id="form-reset-success">Start again</button>
+      </div>
     `;
     successPanel.hidden = false;
     form.hidden = true;
@@ -547,6 +678,9 @@ if (form) {
     if (nextButton) nextButton.disabled = false;
     if (backButton) backButton.disabled = true;
     clearValidationState();
+    conditionalFields.forEach(({ name, triggerValue, groupId, fieldName }) => {
+      syncConditionalField(name, triggerValue, groupId, fieldName);
+    });
     updateTestStatus("");
     setStep(0);
   };
@@ -558,20 +692,22 @@ if (form) {
     resetFormState();
 
     Object.entries(profile).forEach(([key, value]) => {
-      if (key === "linkedin_goals") {
-        setCheckboxValues("linkedin_goals", value);
+      if (key === "commercial_focus") {
+        setCheckboxValues("commercial_focus", value);
         return;
       }
 
-      if (key === "weakest_area") {
-        setCheckboxValues("weakest_area", value);
+      if (key === "current_gaps") {
+        setCheckboxValues("current_gaps", value);
         return;
       }
 
-      if (key === "deal_size" || key === "readiness") {
+      if (key === "role" || key === "deal_size" || key === "readiness" || key === "linkedin_current_state") {
         setRadioValue(key, value);
         return;
       }
+
+      if (key === "expected_fit_outcome") return;
 
       const field = form.elements[key];
       if (field) field.value = value;
@@ -579,8 +715,9 @@ if (form) {
 
     const normalized = normalizeLinkedInValue(getTrimmedValue("linkedin_url"));
     if (normalized) form.elements.linkedin_url.value = normalized;
-    syncConditionalField("linkedin_goals", "Other", "linkedin-goals-other-group", "linkedin_goals_other");
-    syncConditionalField("weakest_area", "Other", "weakest-area-other-group", "weakest_area_other");
+    conditionalFields.forEach(({ name, triggerValue, groupId, fieldName }) => {
+      syncConditionalField(name, triggerValue, groupId, fieldName);
+    });
 
     const previewPayload = buildPayload();
     const previewFit = calculateFitOutcome(previewPayload);
@@ -595,6 +732,12 @@ if (form) {
     updateTestStatus(statusMap[profileName] || "Test data loaded.");
     logTest(`[test-mode] Loaded ${profileName} profile`, previewPayload);
     logTest("[test-mode] Calculated fit outcome", previewFit);
+    logTest(
+      "[test-mode] Expected fit outcome",
+      profile.expected_fit_outcome,
+      "Match:",
+      previewFit === profile.expected_fit_outcome
+    );
     logTest(
       `[test-mode] Submission endpoint ${hasRealEndpoint ? "will be used" : "will be skipped"}`
     );
@@ -621,13 +764,11 @@ if (form) {
     setError(name, "");
     clearGroupState(name);
 
-    if (name === "linkedin_goals") {
-      syncConditionalField("linkedin_goals", "Other", "linkedin-goals-other-group", "linkedin_goals_other");
-    }
-
-    if (name === "weakest_area") {
-      syncConditionalField("weakest_area", "Other", "weakest-area-other-group", "weakest_area_other");
-    }
+    conditionalFields
+      .filter((field) => field.name === name)
+      .forEach(({ name: fieldName, triggerValue, groupId, fieldName: detailFieldName }) => {
+        syncConditionalField(fieldName, triggerValue, groupId, detailFieldName);
+      });
   });
 
   form.addEventListener("input", (event) => {
@@ -692,15 +833,8 @@ if (form) {
         return;
       }
 
-      const submitPromise = submitPayload(payload);
-
-      window.setTimeout(() => {
-        renderSuccessState(fitOutcome);
-      }, 400);
-
-      submitPromise.catch((error) => {
-        console.error("Trust Audit submission failed:", error);
-      });
+      await submitPayload(payload);
+      renderSuccessState(fitOutcome);
     } catch (error) {
       console.error("Trust Audit submission error:", error);
       submitError.textContent =
@@ -716,6 +850,15 @@ if (form) {
       }
       if (backButton) backButton.disabled = false;
       setStep(currentStep);
+    }
+  });
+
+  successPanel?.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) return;
+
+    if (target.closest("#form-reset-success")) {
+      resetFormState();
     }
   });
 
@@ -740,7 +883,8 @@ if (form) {
     });
   }
 
-  syncConditionalField("linkedin_goals", "Other", "linkedin-goals-other-group", "linkedin_goals_other");
-  syncConditionalField("weakest_area", "Other", "weakest-area-other-group", "weakest_area_other");
+  conditionalFields.forEach(({ name, triggerValue, groupId, fieldName }) => {
+    syncConditionalField(name, triggerValue, groupId, fieldName);
+  });
   setStep(0);
 }
