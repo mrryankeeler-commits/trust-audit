@@ -28,6 +28,9 @@ if (revealItems.length) {
 const GOOGLE_SCRIPT_ENDPOINT = "https://script.google.com/macros/s/AKfycbzigOYWXX01SL2vzqgW6rdira2-D_zajxOugLLjrcAtnp27qFgV63OtUr4Bw0h7CBQ4bw/exec";
 
 const form = document.querySelector("#trust-audit-form");
+const requestSection = document.querySelector("#request");
+const headerRequestLink = document.querySelector('.header-link[href="#request"]');
+const heroRequestLink = document.querySelector('.hero-actions a[href="#request"]');
 
 function isTestMode() {
   const params = new URLSearchParams(window.location.search);
@@ -51,6 +54,11 @@ if (form) {
   const hasRealEndpoint =
     GOOGLE_SCRIPT_ENDPOINT &&
     GOOGLE_SCRIPT_ENDPOINT !== "PASTE_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+  const SESSION_STORAGE_KEY = "trust_audit_session_id";
+  const REQUEST_SECTION_VIEW_KEY = "trust_audit_request_section_viewed";
+  const FORM_STARTED_KEY = "trust_audit_form_started";
+  const STEP_VIEW_KEY = "trust_audit_step_views";
+  const pageStartTime = Date.now();
 
   const testProfiles = {
     strong: {
@@ -171,10 +179,238 @@ if (form) {
 
   let currentStep = 0;
   let isSubmitting = false;
+  let maxStepReached = 1;
+  let submitted = false;
+  let pageExitTracked = false;
 
   const logTest = (...args) => {
     if (!testMode) return;
     console.log(...args);
+  };
+
+  const safeSessionStorage = {
+    getItem(key) {
+      try {
+        return window.sessionStorage.getItem(key);
+      } catch (error) {
+        logTest("[analytics] sessionStorage get failed", key, error);
+        return null;
+      }
+    },
+    setItem(key, value) {
+      try {
+        window.sessionStorage.setItem(key, value);
+      } catch (error) {
+        logTest("[analytics] sessionStorage set failed", key, error);
+      }
+    }
+  };
+
+  const getSessionId = () => {
+    const existingId = safeSessionStorage.getItem(SESSION_STORAGE_KEY);
+    if (existingId) return existingId;
+
+    const generatedId =
+      typeof window.crypto?.randomUUID === "function"
+        ? window.crypto.randomUUID()
+        : `trust-audit-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+    safeSessionStorage.setItem(SESSION_STORAGE_KEY, generatedId);
+    return generatedId;
+  };
+
+  const sessionId = getSessionId();
+  const urlParams = new URLSearchParams(window.location.search);
+  const utmParams = {
+    utm_source: urlParams.get("utm_source") || "",
+    utm_medium: urlParams.get("utm_medium") || "",
+    utm_campaign: urlParams.get("utm_campaign") || ""
+  };
+
+  const getStoredStepViews = () => {
+    const raw = safeSessionStorage.getItem(STEP_VIEW_KEY);
+    if (!raw) return new Set();
+
+    try {
+      return new Set(JSON.parse(raw));
+    } catch (error) {
+      logTest("[analytics] step view parse failed", error);
+      return new Set();
+    }
+  };
+
+  const trackedStepViews = getStoredStepViews();
+
+  const persistTrackedSteps = () => {
+    safeSessionStorage.setItem(STEP_VIEW_KEY, JSON.stringify(Array.from(trackedStepViews)));
+  };
+
+  const hasStartedForm = () => safeSessionStorage.getItem(FORM_STARTED_KEY) === "true";
+
+  const markFormStarted = () => {
+    safeSessionStorage.setItem(FORM_STARTED_KEY, "true");
+  };
+
+  const trackClarityEvent = (eventName) => {
+    if (typeof window.clarity === "function") {
+      window.clarity("event", eventName);
+    }
+  };
+
+  const getCurrentStepMeta = (index = currentStep) => {
+    const step = steps[index];
+    const stepNumber = index + 1;
+    const stepName = step?.querySelector("h3")?.textContent?.trim() || "";
+
+    return {
+      stepNumber,
+      stepName
+    };
+  };
+
+  const getDurationSeconds = () => Math.max(0, Math.round((Date.now() - pageStartTime) / 1000));
+
+  const serializeEventPayload = (payload) =>
+    Object.fromEntries(
+      Object.entries(payload).map(([key, value]) => [
+        key,
+        value === undefined || value === null ? "" : String(value)
+      ])
+    );
+
+  const sendAnalyticsPayload = (payload, { useBeacon = false } = {}) => {
+    if (!hasRealEndpoint) {
+      logTest("[analytics] endpoint unavailable, skipped send", payload);
+      return;
+    }
+
+    const serializedPayload = serializeEventPayload(payload);
+    const body = new URLSearchParams(serializedPayload);
+
+    if (useBeacon && typeof navigator.sendBeacon === "function") {
+      try {
+        const sent = navigator.sendBeacon(
+          GOOGLE_SCRIPT_ENDPOINT,
+          new Blob([body.toString()], {
+            type: "application/x-www-form-urlencoded;charset=UTF-8"
+          })
+        );
+
+        if (sent) return;
+      } catch (error) {
+        logTest("[analytics] sendBeacon failed", error, serializedPayload);
+      }
+    }
+
+    fetch(GOOGLE_SCRIPT_ENDPOINT, {
+      method: "POST",
+      mode: "no-cors",
+      keepalive: useBeacon,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+      },
+      body
+    }).catch((error) => {
+      logTest("[analytics] fetch failed", error, serializedPayload);
+    });
+  };
+
+  const trackEvent = (eventName, properties = {}, options = {}) => {
+    const payload = serializeEventPayload({
+      record_type: "event",
+      event_name: eventName,
+      session_id: sessionId,
+      timestamp: new Date().toISOString(),
+      page_url: window.location.href,
+      referrer: document.referrer || "",
+      utm_source: utmParams.utm_source,
+      utm_medium: utmParams.utm_medium,
+      utm_campaign: utmParams.utm_campaign,
+      step_number: "",
+      step_name: "",
+      fit_outcome: fitOutcomeField?.value || "",
+      duration_seconds: "",
+      max_step_reached: maxStepReached,
+      form_started: hasStartedForm(),
+      submitted,
+      viewport_width:
+        window.innerWidth || document.documentElement.clientWidth || "",
+      source: "trust-audit-page",
+      ...properties
+    });
+
+    trackClarityEvent(eventName);
+
+    if (testMode) {
+      console.log("[analytics:event]", eventName, payload);
+      console.log("[analytics:state]", {
+        max_step_reached: maxStepReached,
+        submitted
+      });
+    }
+
+    sendAnalyticsPayload(payload, options);
+  };
+
+  const trackStepView = (index) => {
+    const { stepNumber, stepName } = getCurrentStepMeta(index);
+    const stepKey = `${stepNumber}:${stepName}`;
+
+    maxStepReached = Math.max(maxStepReached, stepNumber);
+
+    if (trackedStepViews.has(stepKey)) return;
+
+    trackedStepViews.add(stepKey);
+    persistTrackedSteps();
+    trackEvent("form_step_view", {
+      step_number: stepNumber,
+      step_name: stepName,
+      max_step_reached: maxStepReached
+    });
+  };
+
+  const trackFormStarted = () => {
+    if (hasStartedForm()) return;
+
+    markFormStarted();
+    trackEvent("form_started");
+  };
+
+  const countVisibleErrorsForStep = (index) => {
+    const step = steps[index];
+    if (!step) return 0;
+
+    return Array.from(step.querySelectorAll(".field-error.is-visible")).filter((node) => {
+      const text = node.textContent?.trim();
+      return Boolean(text);
+    }).length;
+  };
+
+  const trackValidationError = (index) => {
+    const { stepNumber, stepName } = getCurrentStepMeta(index);
+    const missingCount = countVisibleErrorsForStep(index);
+
+    trackEvent("form_validation_error", {
+      step_number: stepNumber,
+      step_name: stepName,
+      missing_count: missingCount
+    });
+  };
+
+  const trackPageExit = () => {
+    if (pageExitTracked) return;
+    pageExitTracked = true;
+
+    trackEvent(
+      "page_exit",
+      {
+        duration_seconds: getDurationSeconds(),
+        max_step_reached: maxStepReached,
+        form_started: hasStartedForm(),
+        submitted
+      },
+      { useBeacon: true }
+    );
   };
 
   const updateTestStatus = (message = "") => {
@@ -193,6 +429,7 @@ if (form) {
     const stepNumber = Math.min(currentStep + 1, TOTAL_STEPS);
     const percent = Math.min((stepNumber / TOTAL_STEPS) * 100, 100);
     const isFinalStep = currentStep === TOTAL_STEPS - 1;
+    maxStepReached = Math.max(maxStepReached, stepNumber);
 
     if (stepText) stepText.textContent = `Step ${stepNumber} of ${TOTAL_STEPS}`;
     if (progressBar) progressBar.style.width = `${percent}%`;
@@ -213,6 +450,8 @@ if (form) {
       submitButton.disabled = !isFinalStep || isSubmitting;
       submitButton.setAttribute("aria-hidden", String(!isFinalStep));
     }
+
+    trackStepView(currentStep);
   };
 
   const setError = (name, message = "") => {
@@ -487,6 +726,7 @@ if (form) {
     const selectedRole = getSelectedValue("role");
 
     const payload = {
+      record_type: "request",
       timestamp: new Date().toISOString(),
       name: getTrimmedValue("name"),
       email: getTrimmedValue("email"),
@@ -631,6 +871,10 @@ if (form) {
     `;
     successPanel.hidden = false;
     form.hidden = true;
+    trackEvent("thank_you_shown", {
+      fit_outcome: fitOutcome,
+      duration_seconds: getDurationSeconds()
+    });
   };
 
   const submitPayload = async (payload) => {
@@ -661,6 +905,8 @@ if (form) {
 
   const resetFormState = () => {
     isSubmitting = false;
+    submitted = false;
+    pageExitTracked = false;
     form.reset();
     form.hidden = false;
     if (successPanel) {
@@ -752,11 +998,29 @@ if (form) {
   nextButton?.addEventListener("click", () => {
     submitError.textContent = "";
     if (currentStep >= TOTAL_STEPS - 1) return;
-    if (!validateStep(currentStep)) return;
+    trackFormStarted();
+    const { stepNumber, stepName } = getCurrentStepMeta(currentStep);
+    trackEvent("form_continue_click", {
+      step_number: stepNumber,
+      step_name: stepName
+    });
+    if (!validateStep(currentStep)) {
+      trackValidationError(currentStep);
+      return;
+    }
     setStep(Math.min(currentStep + 1, TOTAL_STEPS - 1));
   });
 
+  form.addEventListener("focusin", () => {
+    trackFormStarted();
+  });
+
+  form.addEventListener("click", () => {
+    trackFormStarted();
+  });
+
   form.addEventListener("change", (event) => {
+    trackFormStarted();
     const target = event.target;
     if (!(target instanceof HTMLElement)) return;
     const name = target.getAttribute("name");
@@ -772,6 +1036,7 @@ if (form) {
   });
 
   form.addEventListener("input", (event) => {
+    trackFormStarted();
     const target = event.target;
     if (!(target instanceof HTMLElement)) return;
     const name = target.getAttribute("name");
@@ -792,6 +1057,7 @@ if (form) {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (isSubmitting) return;
+    trackFormStarted();
     submitError.textContent = "";
     submitError.classList.remove("is-visible");
 
@@ -799,7 +1065,13 @@ if (form) {
       return;
     }
 
+    trackEvent("form_submit_attempt", {
+      step_number: TOTAL_STEPS,
+      step_name: getCurrentStepMeta(TOTAL_STEPS - 1).stepName
+    });
+
     if (!validateStep(currentStep)) {
+      trackValidationError(currentStep);
       const firstInvalid = form.querySelector(".is-invalid");
       if (firstInvalid instanceof HTMLElement) firstInvalid.focus();
       submitError.textContent = "Please complete the required fields before submitting.";
@@ -829,11 +1101,25 @@ if (form) {
     try {
       if (!hasRealEndpoint || honeypot) {
         console.log("Trust Audit payload", payload);
+        submitted = true;
+        trackEvent("form_submitted", {
+          fit_outcome: fitOutcome,
+          step_number: TOTAL_STEPS,
+          step_name: getCurrentStepMeta(TOTAL_STEPS - 1).stepName,
+          duration_seconds: getDurationSeconds()
+        });
         renderSuccessState(fitOutcome);
         return;
       }
 
       await submitPayload(payload);
+      submitted = true;
+      trackEvent("form_submitted", {
+        fit_outcome: fitOutcome,
+        step_number: TOTAL_STEPS,
+        step_name: getCurrentStepMeta(TOTAL_STEPS - 1).stepName,
+        duration_seconds: getDurationSeconds()
+      });
       renderSuccessState(fitOutcome);
     } catch (error) {
       console.error("Trust Audit submission error:", error);
@@ -857,7 +1143,19 @@ if (form) {
     const target = event.target;
     if (!(target instanceof HTMLElement)) return;
 
+    const actionLink = target.closest(".form-success-button");
+    if (actionLink instanceof HTMLAnchorElement) {
+      const isCalendlyLink = /calendly\.com/i.test(actionLink.href);
+      trackEvent(isCalendlyLink ? "calendly_click" : "linkedin_fallback_click", {
+        fit_outcome: fitOutcomeField?.value || ""
+      });
+      return;
+    }
+
     if (target.closest("#form-reset-success")) {
+      trackEvent("start_again_click", {
+        fit_outcome: fitOutcomeField?.value || ""
+      });
       resetFormState();
     }
   });
@@ -886,5 +1184,51 @@ if (form) {
   conditionalFields.forEach(({ name, triggerValue, groupId, fieldName }) => {
     syncConditionalField(name, triggerValue, groupId, fieldName);
   });
+
+  headerRequestLink?.addEventListener("click", () => {
+    trackEvent("header_request_click");
+  });
+
+  heroRequestLink?.addEventListener("click", () => {
+    trackEvent("hero_request_click");
+  });
+
+  if (requestSection) {
+    const trackRequestSectionView = () => {
+      if (safeSessionStorage.getItem(REQUEST_SECTION_VIEW_KEY) === "true") return;
+
+      safeSessionStorage.setItem(REQUEST_SECTION_VIEW_KEY, "true");
+      trackEvent("request_section_view");
+    };
+
+    if (!("IntersectionObserver" in window)) {
+      trackRequestSectionView();
+    } else {
+      const requestObserver = new IntersectionObserver(
+        (entries, currentObserver) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+
+            trackRequestSectionView();
+            currentObserver.unobserve(entry.target);
+          });
+        },
+        {
+          threshold: 0.25
+        }
+      );
+
+      requestObserver.observe(requestSection);
+    }
+  }
+
   setStep(0);
+  trackEvent("page_view");
+
+  window.addEventListener("pagehide", trackPageExit);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+      trackPageExit();
+    }
+  });
 }
