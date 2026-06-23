@@ -849,7 +849,7 @@ if (form) {
     const states = {
       strong_fit: {
         title: "Thanks. From what you’ve shared, there’s likely a clear trust gap I can help you tighten.",
-        body: "I’ll review your profile and last 3 posts and send your short private priority audit within 2 working days.",
+        body: "I’ll review your profile and last 5-7 posts and send your short private priority audit within 2 working days.",
         extra:
           "If there’s a clear trust gap I can help you spot, I’ll show what I’d tighten first to help serious buyers understand and trust you earlier.",
         cta_intro:
@@ -859,7 +859,7 @@ if (form) {
       },
       medium_fit: {
         title: "Thanks. I’ve got your request.",
-        body: "I’ll review your profile and last 3 posts and, if there’s a clear angle where I can give useful feedback, I’ll send over a short private audit within 2 working days.",
+        body: "I’ll review your profile and last 5-7 posts and, if there’s a clear angle where I can give useful feedback, I’ll send over a short private audit within 2 working days.",
         extra: "",
         cta_intro:
           "If you already know this is something you want help with, you can book a short 30-minute call below.",

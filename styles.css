@@ -1092,8 +1092,18 @@ h2 {
   gap: 16px;
 }
 
-.footer-links span {
+.footer-links span,
+.footer-links a {
   color: var(--text-muted);
+}
+
+.footer-links a {
+  text-decoration: none;
+}
+
+.footer-links a:hover,
+.footer-links a:focus-visible {
+  color: var(--text-primary);
 }
 
 .reveal {
