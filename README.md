@@ -39,17 +39,17 @@ a filled honeypot silently skips saving the request.
 
 The existing Google Apps Script URL and request payload keys/order are preserved:
 
-| Form answer | Existing request key / Sheet column |
-| --- | --- |
-| Name | `name` |
-| Email | `email` |
-| Company / business name | `company_name` |
-| Your role | `role` |
-| LinkedIn profile link or username | `linkedin_url` (canonical HTTPS profile URL, or blank for fallback) |
-| What do you sell, and who do you sell it to? | `offer_summary` |
-| What would you like LinkedIn to help you with right now? | `commercial_focus` |
-| How is LinkedIn working for you at the moment? | `linkedin_current_state` |
-| Is there anything specific you’d like me to look at? | `specific_notes` |
+| Form answer | Existing request key | Verified Requests column |
+| --- | --- | --- |
+| Name | `name` | B — Name |
+| Email | `email` | C — Email |
+| Company / business name | `company_name` | E — Company Name |
+| Your role | `role` | F — Role |
+| LinkedIn profile link or username | `linkedin_url` (canonical HTTPS profile URL, or blank for fallback) | D — LinkedIn URL |
+| What do you sell, and who do you sell it to? | `offer_summary` | G — Offer / Business Summary |
+| What would you like LinkedIn to help you with right now? | `commercial_focus` | I — Commercial Focus |
+| How is LinkedIn working for you at the moment? | `linkedin_current_state` | L — LinkedIn Current State |
+| Is there anything specific you’d like me to look at? | `specific_notes` | M — Specific Notes |
 
 Provide either a LinkedIn profile or company/business name; both can be supplied.
 Company name is optional when a valid profile is provided. Role, current LinkedIn
@@ -74,9 +74,30 @@ Retired columns are sent as empty strings: `deal_size`, `current_gaps`, `readine
 `record_type=request`, `timestamp` and `source=trust-audit-page` are unchanged.
 Live analytics still use the existing Events payload and endpoint outside preview mode.
 
-The Apps Script and Make.com configuration are not stored in this repo. They have not
-been changed or tested against live services. The existing `no-cors` POST is retained;
-it cannot confirm a row was saved from the browser's opaque response.
+## Integration inspection — 17 November 2026
+
+Read-only inspection of the live Trust Audit Requests workbook confirmed that
+`Requests!A1:O1` matches the expected storage order. A is Timestamp; H, J, K and N
+are the retired Deal Size, Current Gaps, Readiness and Fit Outcome columns; O is
+Source. No column rename, deletion or reordering is indicated by the form changes.
+No data validation was returned for the bounded sample `Requests!A2:Q5`; this is
+not a claim about every row or other tab. No cells were changed.
+
+The Apps Script and Make.com configuration are not stored in this repo and were
+not accessible through the available connections. Their actual validation,
+routing and notification settings remain unverified. Before release, inspect the
+Apps Script to ensure it:
+
+- Accepts a blank `linkedin_url` when `company_name` is supplied, while still
+  requiring name, email, business summary and LinkedIn goal.
+- Accepts blank optional fields and the retired H/J/K/N values; does not require
+  old role/current-state choices or split the free-text goal as a checkbox list.
+- Appends all valid requests to Requests, keeping the existing column positions,
+  and does not discard requests based on fit scoring.
+- Preserves its Events/Sessions routing and existing spam/error handling.
+
+No live request or notification test was sent. The existing `no-cors` POST is
+retained; it cannot confirm a saved row from the browser's opaque response.
 
 ## Make.com notification filter to review
 
