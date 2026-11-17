@@ -39,7 +39,7 @@ a filled honeypot silently skips saving the request.
 
 The existing Google Apps Script URL and request payload keys/order are preserved:
 
-| Form answer | Existing request key | Verified Requests column |
+| Form answer | Existing request key | Verified Requests column (before migration) |
 | --- | --- | --- |
 | Name | `name` | B — Name |
 | Email | `email` | C — Email |
@@ -83,10 +83,11 @@ Source. No column rename, deletion or reordering is indicated by the form change
 No data validation was returned for the bounded sample `Requests!A2:Q5`; this is
 not a claim about every row or other tab. No cells were changed.
 
-The Apps Script and Make.com configuration are not stored in this repo and were
-not accessible through the available connections. Their actual validation,
-routing and notification settings remain unverified. Before release, inspect the
-Apps Script to ensure it:
+The user subsequently supplied the Apps Script. Offline tests confirmed that it
+accepts the current form payloads, including business-name fallback and blank
+retired fields, without fit rejection. This does not verify which version the
+live endpoint runs. The Make configuration remains inaccessible. The remaining
+integration checks are:
 
 - Accepts a blank `linkedin_url` when `company_name` is supplied, while still
   requiring name, email, business summary and LinkedIn goal.
@@ -98,6 +99,17 @@ Apps Script to ensure it:
 
 No live request or notification test was sent. The existing `no-cors` POST is
 retained; it cannot confirm a saved row from the browser's opaque response.
+
+## Prepared column migration (not applied live)
+
+The user chose to delete the four retired Requests columns. A complete replacement
+Apps Script is in `apps-script/Code.gs`; `apps-script/MIGRATION.md` gives the cutover
+order and new A:K Make map. The replacement supports both old/new layouts and
+provides `migrateRequestsColumns()` with a backup and shared request-write lock.
+Deploy it to the existing endpoint before running the migration; pause Make first
+and refresh its mappings before resuming. Do not delete live columns while the
+old script is deployed. The frontend payload stays compatible with both layouts.
+Run offline checks with `node apps-script/test.cjs`.
 
 ## Make.com notification filter to review
 
