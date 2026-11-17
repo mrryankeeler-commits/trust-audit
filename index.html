@@ -6,7 +6,7 @@
   <title>LinkedIn Trust Audit | Ryan Keeler</title>
   <meta
     name="description"
-    content="A short private LinkedIn Trust Audit for technical founders, consultants, and B2B experts who want their expertise to be easier to understand and trust before the first conversation."
+    content="A personalised LinkedIn Trust Audit for founders selling B2B services. Get an honest take on how you come across and which changes are worth making."
   >
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,16 +49,14 @@
       <section class="hero section">
         <div class="hero-inner">
           <p class="section-label hero-eyebrow reveal">LinkedIn Trust Audit</p>
-          <h1 class="reveal">Find the trust gaps buyers notice before they speak to you</h1>
+          <h1 class="reveal">Does your LinkedIn do you justice?</h1>
           <div class="hero-lower">
             <div class="hero-copy reveal">
               <p class="hero-subhead">
-                A short private video review of your profile and last 5-7 posts, showing what I’d
-                tighten to help serious buyers understand and trust you earlier.
+                I’ll give you an honest take on how your profile and recent posts come across to your ideal clients <span class="hero-audience-note">(or whoever you’re trying to reach)</span>.
               </p>
-              <p class="hero-note">
-                I only record a small number each week, and I prioritise requests where I can give
-                specific, useful feedback.
+              <p class="hero-subhead">
+                I’ll show you what’s working, what people might miss and which changes are most worth making based on what you want from LinkedIn.
               </p>
               <div class="hero-actions">
                 <a class="button-primary" href="#request">Request your Trust Audit</a>
@@ -83,26 +81,25 @@
             <p class="section-kicker">Review lens</p>
             <h2>What the audit reviews</h2>
             <p class="section-intro">
-              This isn’t a generic content critique. I look at your LinkedIn through the eyes of a
-              serious buyer, referrer, partner, or stakeholder.
+              I look at your LinkedIn from the point of view of the people you want to reach, whether that’s potential clients, referrers or partners.
             </p>
           </div>
           <div class="overview-grid">
             <article class="overview-card reveal">
               <h3>Profile clarity</h3>
-              <p>Headline, About, Featured section, and whether buyers quickly understand what you do and why it matters.</p>
+              <p>Your headline, About and Featured sections, and whether they make it easy to understand what you do and who it’s for.</p>
             </article>
             <article class="overview-card reveal">
               <h3>Recent content</h3>
-              <p>Your last 5-7 posts, and whether they show your thinking, judgement, proof, and commercial relevance.</p>
+              <p>Your recent posts and what they show people about how you think and work.</p>
             </article>
             <article class="overview-card reveal">
               <h3>Visible proof</h3>
-              <p>Whether your credibility is easy to recognise before someone speaks to you.</p>
+              <p>Whether people can find examples that back up what you say about your work.</p>
             </article>
             <article class="overview-card reveal">
-              <h3>Buyer hesitation</h3>
-              <p>What a serious buyer might question, misunderstand, or miss before the first conversation.</p>
+              <h3>Lingering doubts</h3>
+              <p>What people might still be unsure about before getting in touch or recommending you.</p>
             </article>
           </div>
         </div>
@@ -114,7 +111,7 @@
             <p class="section-kicker">Request</p>
             <h2>Request your audit</h2>
             <p class="section-intro">
-              I’ll look at your LinkedIn profile and recent posts from a potential buyer’s point of view. I’ll send you a short, personalised Trust Audit showing what’s already working, what buyers might be missing, and two or three specific changes I’d make to help them understand and trust what you do.
+              I’ll send you a short, personalised audit of your LinkedIn profile and recent posts. It’ll show you what’s working, what the people you want to reach might miss and which changes are most worth making based on what you want from LinkedIn.
             </p>
           </div>
 
@@ -163,8 +160,31 @@
                     <p class="field-error" id="email-error" data-error-for="email"></p>
                   </div>
                   <div class="field-group field-span-full">
-                    <label for="linkedin_url">LinkedIn profile URL</label>
-                    <input type="url" id="linkedin_url" name="linkedin_url" inputmode="url" placeholder="https://www.linkedin.com/in/your-profile" required>
+                    <div class="label-row">
+                      <label for="company_name">Company / business name</label>
+                      <span class="field-optional">Optional</span>
+                    </div>
+                    <input type="text" id="company_name" name="company_name" autocomplete="organization">
+                    <p class="field-error" id="company-name-error" data-error-for="company_name"></p>
+                  </div>
+                  <div class="field-group field-span-full">
+                    <div class="label-row">
+                      <label for="role">Your role</label>
+                      <span class="field-optional">Optional</span>
+                    </div>
+                    <select id="role" name="role">
+                      <option value="">Select your role</option>
+                      <option>Founder / co-founder</option>
+                      <option>Partner / director</option>
+                      <option>Independent consultant</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+                  <div class="field-group field-span-full">
+                    <label for="linkedin_url">LinkedIn profile link or username</label>
+                    <input type="text" id="linkedin_url" name="linkedin_url" inputmode="url" placeholder="mrryankeeler or linkedin.com/in/mrryankeeler" autocapitalize="none" spellcheck="false" aria-describedby="linkedin-help profile-lookup-help">
+                    <p class="field-help" id="linkedin-help">Paste your profile link, or enter the part after linkedin.com/in/ - for example, mrryankeeler.</p>
+                    <p class="field-help" id="profile-lookup-help">If you can’t find your profile link or username, enter your business name above and I’ll look you up.</p>
                     <p class="field-error" id="linkedin-url-error" data-error-for="linkedin_url"></p>
                   </div>
                 </div>
@@ -184,6 +204,29 @@
                     <label for="commercial_focus">What would you like LinkedIn to help you with right now?</label>
                     <textarea id="commercial_focus" name="commercial_focus" rows="4" required></textarea>
                     <p class="field-error" id="commercial-focus-error" data-error-for="commercial_focus"></p>
+                  </div>
+                  <div class="field-group field-span-full">
+                    <div class="label-row">
+                      <label for="linkedin_current_state">How is LinkedIn working for you at the moment?</label>
+                      <span class="field-optional">Optional</span>
+                    </div>
+                    <select id="linkedin_current_state" name="linkedin_current_state">
+                      <option value="">Select the closest description</option>
+                      <option>I’m not actively using it yet</option>
+                      <option>I get views or engagement, but few useful conversations</option>
+                      <option>I get enquiries, but often from the wrong people</option>
+                      <option>I mainly use it to support referrals and existing conversations</option>
+                      <option>It brings me useful conversations, and I’d like to improve it</option>
+                      <option>I’m not sure</option>
+                      <option>Something else</option>
+                    </select>
+                  </div>
+                  <div class="field-group field-span-full">
+                    <div class="label-row">
+                      <label for="specific_notes">Is there anything specific you’d like me to look at?</label>
+                      <span class="field-optional">Optional</span>
+                    </div>
+                    <textarea id="specific_notes" name="specific_notes" rows="3"></textarea>
                   </div>
                 </div>
               </section>
@@ -212,7 +255,7 @@
 
     <footer class="site-footer">
       <div class="container footer-inner">
-        <p>Ryan Keeler: LinkedIn positioning, proof, and trust-led content for technical founders.</p>
+        <p>Ryan Keeler · LinkedIn ghostwriter and strategist for founders selling B2B services</p>
         <div class="footer-links" aria-label="Footer links">
           <a href="https://www.linkedin.com/in/mrryankeeler/" target="_blank" rel="noreferrer">LinkedIn</a>
           <span>mrryankeeler@gmail.com</span>

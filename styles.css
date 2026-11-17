@@ -280,6 +280,10 @@ h2 {
   font-weight: 500;
 }
 
+.hero-audience-note {
+  color: rgba(227, 246, 252, 0.64);
+}
+
 .hero-note {
   margin: 20px 0 0;
   max-width: 620px;
@@ -401,6 +405,11 @@ h2 {
 .section-intro {
   max-width: 46rem;
   margin: 14px 0 0;
+}
+
+.audit-overview .overview-header,
+.audit-overview .section-intro {
+  max-width: none;
 }
 
 .request-section {
@@ -641,7 +650,7 @@ h2 {
 .field-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
+  gap: 16px 18px;
 }
 
 .field-group,
@@ -695,8 +704,10 @@ h2 {
 }
 
 .field-group input,
-.field-group textarea {
+.field-group textarea,
+.field-group select {
   width: 100%;
+  min-width: 0;
   padding: 15px 16px;
   border: 1px solid rgba(227, 246, 252, 0.12);
   border-radius: 16px;
@@ -716,11 +727,17 @@ h2 {
 }
 
 .field-group input:focus,
-.field-group textarea:focus {
+.field-group textarea:focus,
+.field-group select:focus {
   border-color: rgba(22, 150, 217, 0.58);
   box-shadow: 0 0 0 4px rgba(22, 150, 217, 0.12);
   background: rgba(2, 28, 67, 0.96);
   outline: none;
+}
+
+.field-group select {
+  color-scheme: dark;
+  text-overflow: ellipsis;
 }
 
 .field-group textarea {
@@ -843,6 +860,12 @@ h2 {
   line-height: 1.45;
 }
 
+.field-error:empty,
+.form-submit-error:empty {
+  min-height: 0;
+  margin-top: 0;
+}
+
 .field-error.is-visible,
 .form-submit-error.is-visible {
   color: var(--error-soft);
@@ -872,7 +895,7 @@ h2 {
 }
 
 .form-actions {
-  margin-top: 26px;
+  margin-top: 16px;
 }
 
 .form-actions-row {

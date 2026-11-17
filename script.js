@@ -60,9 +60,13 @@ if (form) {
   const sampleRequest = {
     name: "Alex Example",
     email: "alex@example.com",
-    linkedin_url: "https://www.linkedin.com/in/alex-example/",
-    offer_summary: "I sell bookkeeping services to small business owners.",
-    commercial_focus: "I’d like more local clients to understand how I can help them."
+    company_name: "Example Advisory",
+    role: "Founder / co-founder",
+    linkedin_url: "alex-example",
+    offer_summary: "We help B2B software teams plan and deliver complex implementation projects.",
+    commercial_focus: "I’d like potential clients to understand why they would hire us.",
+    linkedin_current_state: "I get views or engagement, but few useful conversations",
+    specific_notes: "Please look at whether my profile explains the value of our client work."
   };
 
   // Preview data stays in memory and is never sent to the live endpoint.
@@ -385,20 +389,36 @@ if (form) {
     if (field) {
       field.classList.toggle("is-invalid", Boolean(message));
       field.setAttribute("aria-invalid", String(Boolean(message)));
-      if (errorNode?.id) field.setAttribute("aria-describedby", errorNode.id);
+      if (errorNode?.id) {
+        const descriptions = new Set((field.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean));
+        descriptions.add(errorNode.id);
+        field.setAttribute("aria-describedby", Array.from(descriptions).join(" "));
+      }
     }
   };
 
   const getTrimmedValue = (name) => String(form.elements[name]?.value || "").trim();
 
+  const usesProfileFallback = () => !getTrimmedValue("linkedin_url") && Boolean(getTrimmedValue("company_name"));
+
   const normalizeLinkedInValue = (value) => {
+    const entered = String(value || "").trim();
+    const usernamePattern = /^[\p{L}\p{N}][\p{L}\p{N}-]*$/u;
+    const username = entered.replace(/^@/, "");
+    if (usernamePattern.test(username)) {
+      return `https://www.linkedin.com/in/${encodeURIComponent(username)}/`;
+    }
+
     try {
-      const url = new URL(value.trim());
+      const candidate = /^(www\.)?linkedin\.com\//i.test(entered) ? `https://${entered}` : entered;
+      const url = new URL(candidate);
       if (!/^https?:$/.test(url.protocol) ||
           !/^(www\.)?linkedin\.com$/i.test(url.hostname) ||
-          url.username || url.password || url.port ||
-          !/^\/in\/[^/\s]+\/?$/.test(url.pathname)) return "";
-      return `https://www.linkedin.com${url.pathname.replace(/\/$/, "")}/`;
+          url.username || url.password || url.port) return "";
+      const profile = url.pathname.match(/^\/in\/([^/]+)\/?$/);
+      const handle = profile ? decodeURIComponent(profile[1]) : "";
+      if (!usernamePattern.test(handle)) return "";
+      return `https://www.linkedin.com/in/${encodeURIComponent(handle)}/`;
     } catch {
       return "";
     }
@@ -413,7 +433,6 @@ if (form) {
         const messages = {
           name: "Please add your name.",
           email: "Please add your email address.",
-          linkedin_url: "Please add your LinkedIn profile URL.",
           offer_summary: "Tell me what you sell and who you sell it to.",
           commercial_focus: "Tell me what you’d like LinkedIn to help you with."
         };
@@ -421,14 +440,21 @@ if (form) {
       } else if (field.name === "email" &&
                  (!field.validity.valid || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))) {
         message = "Please enter a valid email address.";
-      } else if (field.name === "linkedin_url") {
-        const normalized = normalizeLinkedInValue(value);
-        if (!normalized) message = "Enter a LinkedIn profile URL, like https://www.linkedin.com/in/your-profile.";
-        else field.value = normalized;
       }
       setError(field.name, message);
       if (message) valid = false;
     });
+    if (index === 0) {
+      const profile = getTrimmedValue("linkedin_url");
+      let message = "";
+      if (!profile && !getTrimmedValue("company_name")) {
+        message = "Add your LinkedIn profile link or username, or enter your business name above.";
+      } else if (profile && !normalizeLinkedInValue(profile)) {
+        message = "Enter a valid LinkedIn profile link or username, or leave this blank and enter your business name above.";
+      }
+      setError("linkedin_url", message);
+      if (message) valid = false;
+    }
     return valid;
   };
 
@@ -452,16 +478,19 @@ if (form) {
     timestamp: new Date().toISOString(),
     name: getTrimmedValue("name"),
     email: getTrimmedValue("email"),
-    linkedin_url: normalizeLinkedInValue(getTrimmedValue("linkedin_url")),
-    company_name: "",
-    role: "",
+    linkedin_url: usesProfileFallback() ? "" : normalizeLinkedInValue(getTrimmedValue("linkedin_url")),
+    company_name: getTrimmedValue("company_name"),
+    role: getTrimmedValue("role"),
     offer_summary: getTrimmedValue("offer_summary"),
     deal_size: "",
     commercial_focus: getTrimmedValue("commercial_focus"),
     current_gaps: "",
     readiness: "",
-    linkedin_current_state: "",
-    specific_notes: "",
+    linkedin_current_state: getTrimmedValue("linkedin_current_state"),
+    specific_notes: [
+      usesProfileFallback() ? "Profile not supplied — confirm by email" : "",
+      getTrimmedValue("specific_notes")
+    ].filter(Boolean).join("\n\n"),
     fit_outcome: "",
     source: "trust-audit-page"
   });
@@ -566,17 +595,10 @@ if (form) {
     trackFormStarted();
     const name = event.target.getAttribute("name");
     if (name) setError(name);
+    if (name === "company_name") setError("linkedin_url");
   };
   form.addEventListener("input", clearFieldError);
   form.addEventListener("change", clearFieldError);
-
-  form.elements.linkedin_url?.addEventListener("blur", () => {
-    const normalized = normalizeLinkedInValue(getTrimmedValue("linkedin_url"));
-    if (normalized) {
-      form.elements.linkedin_url.value = normalized;
-      setError("linkedin_url", "");
-    }
-  });
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
